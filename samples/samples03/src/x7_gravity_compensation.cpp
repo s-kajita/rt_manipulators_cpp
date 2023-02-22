@@ -141,11 +141,29 @@ int main() {
     {8, 1.0 / 2.20}
   };
 
+  bool pid_on=false;
+  double target_q3 = M_PI_4;  // 目標値45度
+  double target_q5 = -(M_PI_2 + M_PI_4);  // 目標値-135度
+  
   while (1) {
     if (kbhit()) {
-      if (getch() == ESC_ASCII_VALUE) {
+      char c;
+      c = getch();
+      if (c == ESC_ASCII_VALUE) {
         std::cout << "Escが入力されました" << std::endl;
         break;
+      }
+      else {
+	std::cout << std::endl;
+      }
+
+      if ( c == 'h' ){
+	target_q3 = links[3].q;
+	target_q5 = links[5].q;
+	pid_on = true;
+      }
+      else if( c == 'f' ){
+	pid_on = false;
       }
     }
 
@@ -159,6 +177,15 @@ int main() {
     // ここで重力補償分の電流値を計算
     samples03_dynamics::gravity_compensation(
       links, target_id, torque_to_current, q_list);
+
+    if(pid_on){
+      // 3番目、5番目のリンクを動かすサーボモータのP制御
+      const double p_gain3 = 2.0;
+      const double p_gain5 = 0.7;
+      q_list[3] += p_gain3 * (target_q3 - links[3].q); 
+      q_list[5] += p_gain5 * (target_q5 - links[5].q);
+    }
+    
     for (const auto & [target_id, q_value] : q_list) {
       hardware.set_current(links[target_id].dxl_id, q_value);
     }

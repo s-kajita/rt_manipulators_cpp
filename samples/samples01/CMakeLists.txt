@@ -26,6 +26,7 @@ set(list_samples
     s17_write_velocity
     x7_write_current
     s17_write_current
+    x7_home
 )
 foreach(sample IN LISTS list_samples)
     message("${sample}")
