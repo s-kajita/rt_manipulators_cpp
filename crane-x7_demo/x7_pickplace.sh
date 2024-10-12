@@ -1,0 +1,1 @@
+rosrun crane_x7_examples crane_x7_pick_and_place_demo.py
